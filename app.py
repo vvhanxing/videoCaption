@@ -15,11 +15,19 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-
-    # For demonstration purposes, we'll just return a success message
     
-    file.save(os.path.join(r'./uploads',file.filename))
-    caption = getCaption(os.path.join(r'./uploads',file.filename)  )
+    video_save_path = os.path.join(r'./uploads',file.filename[:-4])
+    if not os.path.exists(video_save_path):
+        os.makedirs(video_save_path)
+        print("Folder created")
+        file.save(os.path.join(video_save_path,file.filename))
+        print("saved video")
+
+    else:
+        print("Folder already exists")
+        file.save(os.path.join(video_save_path,file.filename))
+        print("saved video")
+    caption = getCaption(os.path.join(video_save_path,file.filename)  )
 
     return jsonify({'message': caption,'fileName':file.filename}), 200
 
