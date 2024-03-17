@@ -46,6 +46,7 @@
     }
 
     function createVideoInfo(message) {
+      document.createElement("br");
       const info = document.createElement('div');
       info.textContent = message;
       info.classList.add('video-info');
@@ -73,9 +74,16 @@
       })
       .then(response => response.json())
       .then(data => {
-        const info = createVideoInfo(data.message);
-        videoContainer.appendChild(info);
-        //successMessage.textContent = data.message;
+
+        const splitArray = data.message.split("<br>");
+        splitArray.forEach(item => {
+          const info = createVideoInfo(item);
+          videoContainer.appendChild(info);
+          console.log(item);
+        });
+
+ 
+
       })
       .catch(error => console.error('Error:', error));
     }
