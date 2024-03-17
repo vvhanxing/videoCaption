@@ -3,13 +3,30 @@ import numpy as np
 import torch
 from transformers import AutoImageProcessor, AutoTokenizer, VisionEncoderDecoderModel
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
 
+from scenedetect import open_video, SceneManager, split_video_ffmpeg
+from scenedetect.detectors import ContentDetector
+from scenedetect.video_splitter import split_video_ffmpeg
+
+
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
 # load pretrained processor, tokenizer, and model
 image_processor = AutoImageProcessor.from_pretrained("MCG-NJU/videomae-base",cache_dir="./model")
 tokenizer = AutoTokenizer.from_pretrained("gpt2",cache_dir="./model")
 model = VisionEncoderDecoderModel.from_pretrained("Neleac/timesformer-gpt2-video-captioning",cache_dir="./model").to(device)
 
+
+def split_video_into_scenes(video_path,output_dir="./",threshold=27.0):
+    # Open our video, create a scene manager, and add a detector.
+    video = open_video(video_path)
+    scene_manager = SceneManager()
+    scene_manager.add_detector(
+        ContentDetector(threshold=threshold))
+    scene_manager.detect_scenes(video, show_progress=True)
+    scene_list = scene_manager.get_scene_list()
+    split_video_ffmpeg(video_path, scene_list,output_dir=output_dir, show_progress=True)
+    return scene_list
 
 def getCaption(video_path):
     # load video
@@ -37,3 +54,6 @@ def getCaption(video_path):
     caption = tokenizer.batch_decode(tokens, skip_special_tokens=True)[0]
     print(caption) # A man and a woman are dancing on a stage in front of a mirror.
     return caption
+
+if __name__ =="__main__" :
+    split_video_into_scenes("./SVID_20240317_044051_1.mp4")
