@@ -11,7 +11,7 @@ tokenizer = AutoTokenizer.from_pretrained("gpt2",cache_dir="./model")
 model = VisionEncoderDecoderModel.from_pretrained("Neleac/timesformer-gpt2-video-captioning",cache_dir="./model").to(device)
 
 
-def caption(video_path):
+def getCaption(video_path):
     # load video
     # video_path = "./1658_circle.mp4"
     container = av.open(video_path)
