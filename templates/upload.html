@@ -32,7 +32,7 @@
   <script>
     const dropArea = document.getElementById('dropArea');
     const videoContainer = document.getElementById('videoContainer');
-    const successMessage = document.getElementById('success-message');
+    // const successMessage = document.getElementById('success-message');
 
     function createVideoElement(source) {
       const video = document.createElement('video');
@@ -75,7 +75,7 @@
       .then(data => {
         const info = createVideoInfo(data.message);
         videoContainer.appendChild(info);
-        successMessage.textContent = data.message;
+        //successMessage.textContent = data.message;
       })
       .catch(error => console.error('Error:', error));
     }
