@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Upload Preview</title>
+  <style>
+    video {
+      border: 1px solid rgb(255, 255, 255);
+      display: block;
+      margin-top: 20px; /* Add margin for better visibility */
+    }
+    .drop-area {
+      border: 2px dashed #ccc;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .video-info {
+      margin-top: 10px;
+      font-size: 14px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="drop-area" id="dropArea">
+    <p>Drag & Drop videos here or click to upload</p>
+  </div>
+  <div id="videoContainer"></div>
+  <div id="success-message"></div>
+
+  <script>
+    const dropArea = document.getElementById('dropArea');
+    const videoContainer = document.getElementById('videoContainer');
+    const successMessage = document.getElementById('success-message');
+
+    function createVideoElement(source) {
+      const video = document.createElement('video');
+      video.setAttribute('width', '300');
+      video.setAttribute('height', '300');
+      video.setAttribute('controls', '');
+      const videoSource = document.createElement('source');
+      videoSource.setAttribute('src', source);
+      video.appendChild(videoSource);
+      return video;
+    }
+
+    function createVideoInfo(message) {
+      const info = document.createElement('div');
+      info.textContent = message;
+      info.classList.add('video-info');
+      return info;
+    }
+
+    function handleFileUpload(file) {
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const video = createVideoElement(e.target.result);
+        videoContainer.appendChild(video);
+        video.play();
+      };
+
+      reader.readAsDataURL(file);
+
+      // Send the file to the server
+      const formData = new FormData();
+      formData.append('video_file', file);
+
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        const info = createVideoInfo(data.message);
+        videoContainer.appendChild(info);
+        successMessage.textContent = data.message;
+      })
+      .catch(error => console.error('Error:', error));
+    }
+
+    dropArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropArea.classList.add('drag-over');
+    });
+
+    dropArea.addEventListener('dragleave', () => {
+      dropArea.classList.remove('drag-over');
+    });
+
+    dropArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropArea.classList.remove('drag-over');
+
+      const files = e.dataTransfer.files;
+
+      if (!files.length) return;
+
+      handleFileUpload(files[0]);
+    });
+
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'video/*');
+    input.style.display = 'none';
+
+    dropArea.addEventListener('click', () => {
+      input.click();
+    });
+
+    input.addEventListener('change', function () {
+      const files = this.files || [];
+
+      if (!files.length) return;
+
+      handleFileUpload(files[0]);
+    });
+
+    document.body.appendChild(input);
+  </script>
+</body>
+</html>
