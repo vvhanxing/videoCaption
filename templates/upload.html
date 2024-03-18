@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,13 +27,12 @@
   <div class="drop-area" id="dropArea">
     <p>Drag & Drop videos here or click to upload</p>
   </div>
-  <div id="videoContainer"></div>
-  <div id="success-message"></div>
+  <div id="videoContainer"><div id="success-message"></div></div>
+  
 
   <script>
     const dropArea = document.getElementById('dropArea');
     const videoContainer = document.getElementById('videoContainer');
-    // const successMessage = document.getElementById('success-message');
 
     function createVideoElement(source) {
       const video = document.createElement('video');
@@ -74,10 +74,10 @@
       })
       .then(response => response.json())
       .then(data => {
-
-        const splitArray = data.message.split("<br>");
+        console.log(data["video clips"]);
+        const splitArray = data["video clips"];
         splitArray.forEach(item => {
-          const info = createVideoInfo(item);
+          const info = createVideoInfo(item["time span"][0]+" "+item["video clip caption"]);
           videoContainer.appendChild(info);
           console.log(item);
         });
