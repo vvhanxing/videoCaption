@@ -9,6 +9,10 @@ from scenedetect.detectors import ContentDetector
 from scenedetect.video_splitter import split_video_ffmpeg
 
 
+from moviepy.editor import VideoFileClip, concatenate_videoclips
+
+
+
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 # load pretrained processor, tokenizer, and model
@@ -54,6 +58,28 @@ def getCaption(video_path):
     caption = tokenizer.batch_decode(tokens, skip_special_tokens=True)[0]
     print(caption) # A man and a woman are dancing on a stage in front of a mirror.
     return caption
+
+
+# 定义要合并的视频文件路径
+def concatenate_video(video_path_list):
+    video_list = list(map(lambda x:VideoFileClip(x),video_path_list))
+
+    # 如果两个视频尺寸不同，可以通过调整大小使它们具有相同的尺寸
+    # 这里使用video1的尺寸作为标准，将video2调整为相同尺寸
+    for index,video in enumerate(video_list) :
+        video_list[index] = video_list[index].resize(video_list[0].size)
+
+    # 将调整后的视频添加到视频列表中
+    videos = video_list
+
+    # 合并视频
+    final_video = concatenate_videoclips(videos)
+
+    # 保存合并后的视频
+    final_video.write_videofile('./video.mp4', codec='libx264')
+
+    # 输出合并成功信息
+    print("视频合并完成！")
 
 if __name__ =="__main__" :
     split_video_into_scenes("./SVID_20240317_044051_1.mp4")
